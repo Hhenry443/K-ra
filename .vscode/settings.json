@@ -1,0 +1,13 @@
+{
+    "cSpell.words": [
+        "Kora",
+        "strapline"
+    ],
+    "files.associations": {
+    "*.ejs": "html"
+    },
+    "emmet.includeLanguages": {
+    "ejs": "html"
+    },
+    "html.format.templating": true
+}

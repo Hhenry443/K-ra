@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Friend</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="text-center bg-[#f0f0f0]">
+
+    <%- include('./partials/navbar') %>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                // Fetch users and friends in parallel, so that we have them both before comparing them 
+                const [friendsResponse, usersResponse] = await Promise.all([
+                    fetch('/social/getFriends', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: '<%= user_id %>' })
+                    }),
+                    fetch('/social/getUsers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: '<%= user_id %>' })
+                    })
+                ]);
+
+                // Parse responses
+                const friendsData = await friendsResponse.json();
+                const userData = await usersResponse.json();
+
+                // Ensure friends is an array 
+                const friends = friendsData.friends || []; // Ensure it's an array
+                console.log('Friends Array:', friends);
+
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown) {
+                    userData.users.forEach(user => {
+                        if (user.id != '<%= user_id %>' & !friends.includes(user.id)) {
+                            const option = document.createElement('option');
+                            option.value = user.id;
+                            option.textContent = `${user.name} - ${user.id}`;
+                            dropdown.appendChild(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error while fetching data: ' + error)
+            }
+        })
+    </script>
+
+    <div class="p-4 mt-16">
+        <h1 class="text-[#030303]">This is the add Friend page</h1>
+        <h2 class="text-[#030303]">Add a friend</h2>
+
+        <!-- Form to add friend -->
+        <form action="/social/add-friend" method="POST" class="mt-4">
+            <input type="hidden" name="user_id" value="<%= user_id %>">
+
+            <!-- Dropdown list of users -->
+            <select id="userDropdown" name="friend_id" class="border p-2 rounded">
+                <option value="">Select a friend</option>
+            </select>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Add Friend</button>
+        </form>
+    </div>
+
+    <!-- Placeholder for feedback -->
+    <div id="dataContainer" class="mt-4 text-left bg-white p-4 shadow-lg rounded">
+        <%= feedback %>
+    </div>
+</body>
+</html>

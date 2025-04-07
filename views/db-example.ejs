@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Example</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="text-center bg-[#f0f0f0]">
+    <div class="p-4">
+        <h1 class="text-[#030303]"><%= heading %></h1>
+        <p class="text-[#060606]"><%= strapline %></p>
+
+        <!-- Button to fetch data -->
+        <button id="fetchDataBtn" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Fetch Data</button>
+
+        <!-- Placeholder for data -->
+        <div id="dataContainer" class="mt-4 text-left bg-white p-4 shadow-lg rounded"></div>
+    </div>
+
+    <script>
+        document.getElementById('fetchDataBtn').addEventListener('click', () => {
+            fetch('/fetch-data') // API endpoint to fetch data
+                .then(response => response.json()) // Convert response to JSON
+                .then(data => {
+                    const container = document.getElementById('dataContainer');
+                    container.innerHTML = JSON.stringify(data, null, 2) // Display data
+                        .replace(/\\n/g, '<br>') // Formatting
+                        .replace(/ /g, '&nbsp;'); 
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+    </script>
+</body>
+</html>

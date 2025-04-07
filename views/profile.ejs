@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="text-center bg-[#f0f0f0]">
+
+    <%- include('./partials/navbar') %>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            const userId = '<%= user_id %>';
+            
+            // Fetch friends and recommendations concurrently
+            const [friendsResponse, recommendationsResponse, usersResponse ] = await Promise.all([
+                fetch('/social/getFriends', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                }),
+                fetch('/media/get-recommendations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                }),
+                fetch('/social/getUsers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: '<%= user_id %>' })
+                })
+            ]);
+            
+            const friendsData = await friendsResponse.json();
+            const recommendationsData = await recommendationsResponse.json();
+            const userData = await usersResponse.json();
+
+            // Populate friends container
+            const friendsContainer = document.getElementById('friendsContainer');
+            if (friendsContainer) {
+                friendsData.friends.forEach(user => {
+                    // Get the users id and name
+                    userData.users.forEach(account => {
+                        if (account.id == user) {
+                            var userName = account.name;
+                            const p = document.createElement('p');
+                            p.textContent = `${userName} - ${user}`
+                            friendsContainer.append(p)
+                        }
+                })})
+            }
+            
+            // Fetch media details concurrently
+            const mediaDetailsPromises = recommendationsData.results.map(async (rec) => {
+                try {
+                    const mediaResponse = await fetch('/media/get-media', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ media_id: rec.recommendation_media_id })
+                    });
+                    
+                    const mediaData = await mediaResponse.json();
+                    
+                    return mediaData.results.length > 0 ? { 
+                        ...mediaData.results[0], 
+                        recommended_by: rec.recommendation_from_user_id // Include recommender ID
+                    } : null;
+                } catch (error) {
+                    console.error('Error fetching media details:', error);
+                    return null;
+                }
+            });
+            
+            const mediaDetails = (await Promise.all(mediaDetailsPromises)).filter(media => media !== null);
+            
+            // Populate recommendations container
+            const recommendationsContainer = document.getElementById('recommendationsContainer');
+            if (recommendationsContainer) {
+                recommendationsContainer.innerHTML = mediaDetails
+                    .map(media => `<p>${media.media_name} - ${media.media_type} (Recommended by User ID: ${media.recommended_by})</p>`)
+                    .join('');
+            }
+        } catch (error) {
+            console.error('Error initializing page:', error);
+        }
+    });
+
+    </script>
+
+    <div class="p-4 mt-20 flex flex-col items-center justify-center bg-white shadow-lg rounded">
+        <h1 class="text-[#030303]">Hello, <%= username %>!</h1>
+        <h2 class="text-[#030303]">Your user ID: <%= user_id %></h2>
+        <h2 class="text-[#030303]">Your friends:</h2>
+    </div>
+
+    <!-- Placeholder for friends -->
+    <div id="friendsContainer" class="mt-4 text-left bg-white p-4 shadow-lg rounded">
+    </div>
+
+    <div class="p-4 mt-4 flex flex-col items-center justify-center bg-white shadow-lg rounded">
+        <h2 class="text-[#030303]">Your recommendations:</h2>
+    </div>
+    <!-- Placeholder for recommendations -->
+    <div id="recommendationsContainer" class="mt-4 text-left bg-white p-4 shadow-lg rounded">
+    </div>
+
+    <!-- Placeholder for feedback -->
+    <div id="feedbackContainer" class="mt-4 text-left bg-white p-4 shadow-lg rounded">
+        <%= feedback %>
+    </div>
+</body>
+</html>

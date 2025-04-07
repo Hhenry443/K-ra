@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="text-center bg-[#f0f0f0]">
+
+    <%- include('./partials/navbar') %>
+
+    <div class="p-4 mt-16">
+        <h1 class="text-[#030303]"><%= heading %></h1>
+        <p class="text-[#060606]"><%= strapline %></p>
+    </div>
+
+    <!-- Placeholder for feedback -->
+    <div id="dataContainer" class="mt-4 text-left bg-white p-4 shadow-lg rounded">
+        <%= feedback %>
+    </div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Recommendation</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="text-center bg-[#f0f0f0]">
+
+    <%- include('./partials/navbar') %>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            const userId = '<%= user_id %>';
+            
+            // NOTE GET USERS DATA AND FILTER IT WITH THE IDS SO THAT I CAN SEE THE NAME OF USERS
+            // Fetch friends concurrently
+            const [friendsResponse, usersResponse] = await Promise.all([
+                    fetch('/social/getFriends', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: '<%= user_id %>' })
+                    }),
+                    fetch('/social/getUsers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: '<%= user_id %>' })
+                    })
+                ]);
+
+            // Parse responses
+            const friendsData = await friendsResponse.json();
+            const userData = await usersResponse.json();
+
+            console.log(friendsData)
+            console.log(userData)
+
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                friendsData.friends.forEach(user => {
+                    // Get the users id and name
+                    userData.users.forEach(account => {
+                        if (account.id == user) {
+                            var userName = account.name;
+                            console.log(userName)
+                            const option = document.createElement('option');
+                            option.value = user;
+                            option.textContent = `${userName} - ${user}`;
+                            dropdown.appendChild(option);
+                        }
+                    });
+                });
+            }
+
+        } catch (error) {
+            console.error('Error initializing page:', error);
+        }});
+    </script>
+
+    <div class="p-4 mt-16">
+        <h1 class="text-[#030303]">This is the add Recommendation page</h1>
+        <h2 class="text-[#030303]">Add your recommendation</h2>
+
+        <!-- Form to add recommendation -->
+        <form action="/media/add-recommendation" method="POST" class="mt-4">
+            <input type="text" name="title" placeholder="Title" required class="border p-2 rounded w-full mb-2">
+            <input type="text" name="type" placeholder="Type" required class="border p-2 rounded w-full mb-2">
+            <select id="userDropdown" name="from" class="border p-2 rounded">
+                <option value="">Select a friend</option>
+            </select>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Add Recommendation</button>
+        </form>
+    </div>
+
+    <!-- Placeholder for feedback -->
+    <div id="dataContainer" class="mt-4 text-left bg-white p-4 shadow-lg rounded">
+        <%= feedback %>
+    </div>
+</body>
+</html>

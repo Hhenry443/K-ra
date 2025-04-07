@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#f0f0f0]">
+    <%- include('./partials/navbar') %>
+
+    <div class="p-4 mt-16">
+        <h1 class="text-[#030303]"><%= heading %></h1>
+
+        <!-- Form to sign up -->
+        <form action="/auth/signup" method="POST" class="mt-4">
+            <input type="text" name="username" placeholder="Username" required class="border p-2 rounded w-full mb-2">
+            <input type="email" name="email" placeholder="Email" required class="border p-2 rounded w-full mb-2">
+            <input type="password" name="password" placeholder="Password" required class="border p-2 rounded w-full mb-2">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Sign Up</button>
+        </form>        
+
+        <!-- Placeholder for feedback -->
+        <div id="dataContainer" class="mt-4 text-left bg-white p-4 shadow-lg rounded">
+            <%= feedback %>
+        </div>
+    </div>
+</body>
+</html>

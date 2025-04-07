@@ -1,0 +1,10 @@
+{
+    "1": {
+        "task": "Use the api request from add-friend that matches the user ID with the user data in the reccomendation to get the user name, not just the id",
+        "done": false
+    },
+    "2": {
+        "task": "also use the new user and friend id matching to get the list of friends a bit easier and human-readable",
+        "done": false
+    }
+}
